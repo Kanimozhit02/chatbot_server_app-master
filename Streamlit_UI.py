@@ -23,13 +23,8 @@
 # ------------------------------------------------------------
 
 import streamlit as st
-# Streamlit is a Python framework used to build web UIs
-# without writing HTML, CSS, or JavaScript manually
 
 from CLI_Chatbot import get_chatbot_response
-# Imports the shared chatbot brain
-# This allows Streamlit to reuse the same AI logic
-# used by CLI, Flask, and React
 
 
 # ------------------------------------------------------------
@@ -38,21 +33,13 @@ from CLI_Chatbot import get_chatbot_response
 
 st.set_page_config(
     page_title="OpenAI Chatbot",
-    # Browser tab title
-
     page_icon="🤖",
-    # Browser tab icon
-
     layout="centered"
-    # Centers the content on the page
 )
 
 
 # ------------------------------------------------------------
 # Custom CSS Styling for Chat Interface
-# ------------------------------------------------------------
-# Streamlit allows injecting custom CSS using markdown
-# This improves UI alignment and readability
 # ------------------------------------------------------------
 
 st.markdown("""
@@ -87,47 +74,38 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-# unsafe_allow_html=True allows Streamlit to render HTML/CSS
 
 
 # ------------------------------------------------------------
 # Page Title and Caption
 # ------------------------------------------------------------
 
-st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='chat-container'>",
+    unsafe_allow_html=True
+)
 
 st.title("🤖 OpenAI Conversational AI Chatbot")
-# Main heading
 
 st.caption("Multi-LLM Support: OpenAI | Gemini | Claude")
-# Subtitle explaining capability
 
 
 # ------------------------------------------------------------
-# LLM Provider Selection (USER CONTROLLED)
-# ------------------------------------------------------------
-# User chooses which AI model to use
+# LLM Provider Selection
 # ------------------------------------------------------------
 
 provider = st.selectbox(
     "Choose AI Provider",
     ["gemini", "openai", "claude"]
 )
-# Dropdown allows live switching of LLM
-# No backend restart required
 
 
 # ------------------------------------------------------------
 # Initialize Session State for Chat Memory
 # ------------------------------------------------------------
-# Streamlit reruns script on every interaction
-# Session state preserves conversation
-# ------------------------------------------------------------
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-    # Stores messages as:
-    # [("You", "Hi"), ("Bot", "Hello")]
 
 
 # ------------------------------------------------------------
@@ -138,24 +116,31 @@ user_input = st.text_input(
     "You:",
     placeholder="Type your message here..."
 )
-# Captures user message
 
 
 # ------------------------------------------------------------
 # Handle Send Button Click
 # ------------------------------------------------------------
 
-if st.button("Send") and user_input:
-    # Executes only when:
-    # - Send button is clicked
-    # - Input is not empty
+if st.button("Send") and user_input.strip():
 
-    response = get_chatbot_response(user_input, provider)
-    # Sends message + selected provider to chatbot brain
+    # Remove unnecessary spaces before processing
+    cleaned_input = user_input.strip()
+
+    # Send cleaned input to the chatbot backend
+    response = get_chatbot_response(
+        cleaned_input,
+        provider
+    )
 
     # Save conversation in session memory
-    st.session_state.chat_history.append(("You", user_input))
-    st.session_state.chat_history.append(("Bot", response))
+    st.session_state.chat_history.append(
+        ("You", cleaned_input)
+    )
+
+    st.session_state.chat_history.append(
+        ("Bot", response)
+    )
 
 
 # ------------------------------------------------------------
@@ -165,23 +150,35 @@ if st.button("Send") and user_input:
 for sender, message in st.session_state.chat_history:
 
     if sender == "You":
-        # Display user message
-        st.markdown(f"""
-        <div class="user-box">
-            <span class="user-label">You:</span><br>
-            {message}
-        </div>
-        """, unsafe_allow_html=True)
+
+        st.markdown(
+            f"""
+            <div class="user-box">
+                <span class="user-label">You:</span><br>
+                {message}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     else:
-        # Display chatbot response
-        st.markdown(f"""
-        <div class="bot-box">
-            <span class="bot-label">Chatbot:</span><br>
-            {message}
-        </div>
-        """, unsafe_allow_html=True)
+
+        st.markdown(
+            f"""
+            <div class="bot-box">
+                <span class="bot-label">Chatbot:</span><br>
+                {message}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
-# Close the chat container div
-st.markdown("</div>", unsafe_allow_html=True)
+# ------------------------------------------------------------
+# Close the chat container
+# ------------------------------------------------------------
+
+st.markdown(
+    "</div>",
+    unsafe_allow_html=True
+)
